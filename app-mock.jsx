@@ -88,6 +88,7 @@ const SARA_THEMES = {
 function SaraScreen({ theme = 'normal', scale = 1 }) {
   const t = SARA_THEMES[theme];
   const c = t.statusDark ? '#fff' : '#000';
+  const titleSize = theme === 'pop' ? 24 : 28;
 
   return (
     <div style={{
@@ -144,7 +145,8 @@ function SaraScreen({ theme = 'normal', scale = 1 }) {
       <div style={{ textAlign: 'center', marginTop: 14, padding: '0 24px' }}>
         <div style={{
           fontFamily: t.fontFamily, fontWeight: t.titleWeight,
-          fontSize: 28, color: t.ink, letterSpacing: theme === 'pop' ? 0 : 1,
+          fontSize: titleSize, color: t.ink, letterSpacing: theme === 'pop' ? 0 : 1,
+          lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>{t.title}</div>
         <div style={{
           fontSize: 13, color: t.inkSoft, marginTop: 6,
