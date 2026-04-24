@@ -406,7 +406,7 @@ function LPBalanced() {
   const pad = narrow ? 18 : tablet ? 32 : 56;
   const padTop = narrow ? 14 : 24;
   const compact = tablet;
-  const heroCols = narrow ? '1fr' : '1.15fr 1fr';
+  const heroCols = tablet ? '1fr' : '1.15fr 1fr';
   const heroGap = narrow ? 24 : tablet ? 36 : 48;
   const h1 = narrow ? 32 : tablet ? 48 : 66;
   const sub = narrow ? 16 : tablet ? 18 : 20;
@@ -530,17 +530,17 @@ function LPBalanced() {
       {/* SECTION 2 */}
       <section style={{
         padding: `${narrow ? 36 : 60}px ${pad}px`,
-        display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr',
+        display: 'grid', gridTemplateColumns: tablet ? '1fr' : '1fr 1fr',
         gap: narrow ? 28 : tablet ? 40 : 56, alignItems: 'center',
       }}>
         <div style={{
-          display: 'flex', justifyContent: 'center', order: narrow ? 2 : 0,
+          display: 'flex', justifyContent: 'center', order: tablet ? 2 : 0,
         }}>
           <PhoneFrame scale={sec2Scale}>
             <SaraScreen theme={theme === 'normal' ? 'spiritual' : (theme === 'spiritual' ? 'pop' : 'normal')}/>
           </PhoneFrame>
         </div>
-        <div style={{ order: narrow ? 1 : 0, minWidth: 0 }}>
+        <div style={{ order: tablet ? 1 : 0, minWidth: 0 }}>
           <h2 style={{
             fontFamily: lp.serif, fontSize: h2, color: lp.accent,
             fontWeight: 700, lineHeight: 1.3, margin: '0 0 22px',
