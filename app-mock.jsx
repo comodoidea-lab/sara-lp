@@ -88,7 +88,8 @@ const SARA_THEMES = {
 function SaraScreen({ theme = 'normal', scale = 1 }) {
   const t = SARA_THEMES[theme];
   const c = t.statusDark ? '#fff' : '#000';
-  const titleSize = theme === 'pop' ? 24 : 28;
+  const titleSize = theme === 'pop' ? 23 : 24;
+  const cardSize = theme === 'pop' ? 15 : 16;
 
   return (
     <div style={{
@@ -146,7 +147,7 @@ function SaraScreen({ theme = 'normal', scale = 1 }) {
         <div style={{
           fontFamily: t.fontFamily, fontWeight: t.titleWeight,
           fontSize: titleSize, color: t.ink, letterSpacing: theme === 'pop' ? 0 : 1,
-          lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          lineHeight: 1.25, whiteSpace: 'normal', wordBreak: 'keep-all',
         }}>{t.title}</div>
         <div style={{
           fontSize: 13, color: t.inkSoft, marginTop: 6,
@@ -167,7 +168,7 @@ function SaraScreen({ theme = 'normal', scale = 1 }) {
               color: selected ? t.selectedInk : t.ink,
               borderRadius: theme === 'pop' ? 18 : 14,
               padding: '20px 22px',
-              fontSize: 17, fontWeight: t.cardWeight,
+              fontSize: cardSize, fontWeight: t.cardWeight,
               fontFamily: t.cardFont,
               border: selected
                 ? `1.5px solid ${t.selectedBorder}`
@@ -177,7 +178,7 @@ function SaraScreen({ theme = 'normal', scale = 1 }) {
                 : (selected ? '0 8px 22px rgba(0,0,0,0.18)' : '0 2px 8px rgba(0,0,0,0.05)'),
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{card}</span>
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{card}</span>
               <span style={{ opacity: 0.5, fontSize: 18, letterSpacing: 2 }}>···</span>
             </div>
           );
