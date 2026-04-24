@@ -415,8 +415,8 @@ function LPBalanced() {
   const h3 = narrow ? 22 : tablet ? 28 : 34;
   const featCols = narrow || tablet ? '1fr' : 'repeat(3, 1fr)';
   const featGap = narrow ? 22 : 36;
-  const heroScale = narrow ? 0.72 : tablet ? 0.9 : 1.05;
-  const sec2Scale = narrow ? 0.78 : 1;
+  const heroScale = narrow ? 1 : tablet ? 0.95 : 1.05;
+  const sec2Scale = narrow ? 0.92 : tablet ? 0.96 : 1;
   const themeBtnPad = narrow ? '10px 14px' : '12px 22px';
   const themeBtnFont = narrow ? 12 : 14;
   const footCols = tablet ? '1fr' : 'repeat(3, 1fr)';
