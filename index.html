@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sara — 管理しないタスク管理アプリ</title>
+<link rel="icon" type="image/png" sizes="512x512" href="./favicon.png?v=1">
+<link rel="shortcut icon" href="./favicon.png?v=1">
+<link rel="apple-touch-icon" href="./favicon.png?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf7f5;
+  --cream-2:#f0ebe6;
+  --panel:#ffffff;
+  --ink:#1c1917;
+  --ink-2:#57534e;
+  --line:#44403c;
+  --rose:#e11d48;
+  --rose-2:#be123c;
+  --rose-soft:#ffe4e6;
+  --gold:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--ink);font-family:'Noto Sans JP',sans-serif;-webkit-font-smoothing:antialiased}
+html,body{overflow-x:hidden}
+body{
+  background:
+    radial-gradient(circle at 12% 0%, rgba(225,29,72,.08), transparent 42%),
+    radial-gradient(circle at 88% 100%, rgba(245,158,11,.10), transparent 48%),
+    var(--cream);
+  min-height:100vh;
+}
+.round{font-family:'Zen Maru Gothic',sans-serif;letter-spacing:.02em}
+.mono{font-family:ui-monospace,monospace;letter-spacing:.02em}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+.devstrip{
+  background:var(--ink);color:var(--cream);
+  text-align:center;font-family:'Zen Maru Gothic',sans-serif;font-size:12px;
+  padding:8px;border-bottom:3px solid var(--line);
+}
+
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,247,245,.94);
+  backdrop-filter:blur(6px);
+  border-bottom:3px solid var(--line);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:8px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Zen Maru Gothic',sans-serif;font-size:17px;font-weight:700}
+.brand-logo{
+  width:32px;height:32px;border-radius:10px;border:3px solid var(--line);
+  background:var(--panel);display:grid;place-items:center;overflow:hidden;
+}
+.head-brand-icon{width:22px;height:22px;display:block;object-fit:contain}
+nav ul{display:flex;gap:22px;list-style:none}
+nav a{color:var(--ink);text-decoration:none;font-family:'Zen Maru Gothic',sans-serif;font-size:14px;font-weight:600}
+nav a:hover{color:var(--rose-2)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Zen Maru Gothic',sans-serif;font-weight:700;
+  font-size:15px;padding:12px 20px;border-radius:12px;
+  background:var(--panel);color:var(--ink);
+  border:3px solid var(--line);
+  box-shadow:4px 4px 0 var(--line);
+  cursor:pointer;text-decoration:none;
+  transition:transform .08s linear, box-shadow .08s linear;
+}
+.btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--line)}
+.btn.primary{background:var(--rose);color:#fff;border-color:var(--line)}
+.btn.dark{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.btn.disabled{opacity:.55;cursor:not-allowed;pointer-events:none}
+
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Zen Maru Gothic',sans-serif;font-size:12px;font-weight:700;
+  padding:6px 12px;background:var(--rose-soft);color:var(--rose-2);
+  border:3px solid var(--line);border-radius:999px;
+}
+
+.hero{padding:44px 0 32px;border-bottom:3px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:flex-start}
+.h1{
+  font-family:'Zen Maru Gothic',sans-serif;
+  font-size:52px;line-height:1.15;font-weight:900;
+}
+.h1 .accent{color:var(--rose-2)}
+.hero p.lead{font-size:15px;line-height:1.85;color:var(--ink-2);margin-top:14px;max-width:520px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.hero .mono,.hero .mono a{overflow-wrap:anywhere;word-break:break-word}
+
+.hero-stage{
+  border:4px solid var(--line);border-radius:16px;background:var(--cream-2);
+  padding:14px;box-shadow:6px 6px 0 rgba(28,25,23,.12);
+}
+.hero-stage-head{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px}
+.hero-shot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hero-shot{margin:0;background:#111;border:3px solid #1c1912;border-radius:10px;padding:4px;overflow:hidden}
+.hero-shot img{display:block;width:100%;height:auto;border-radius:6px}
+.hero-stage-mobile{display:none}
+.hero-stage-desktop{display:block;max-width:520px;width:100%;justify-self:end}
+
+.sec{padding:72px 0}
+.sec h2{font-family:'Zen Maru Gothic',sans-serif;font-size:32px;text-align:center;font-weight:900;margin-bottom:8px}
+.sec .sub{text-align:center;color:var(--ink-2);font-size:14px;margin-bottom:40px}
+.eyebrow{display:flex;justify-content:center;gap:8px;align-items:center;color:var(--ink-2);font-family:'Zen Maru Gothic',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px}
+
+.troubles{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{
+  background:var(--panel);border:4px solid var(--line);border-radius:16px;
+  padding:26px;box-shadow:6px 6px 0 rgba(28,25,23,.10);
+}
+.trouble{text-align:center}
+.trouble h3{font-family:'Zen Maru Gothic',sans-serif;font-size:18px;font-weight:900;margin:12px 0 8px}
+.trouble p{font-size:13px;line-height:1.75;color:var(--ink-2)}
+
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:28px;align-items:stretch}
+.feat-visual{display:flex;align-items:center;justify-content:center;min-height:260px}
+.feat h3{font-family:'Zen Maru Gothic',sans-serif;font-size:22px;font-weight:900;margin-bottom:10px}
+.feat p{font-size:14px;line-height:1.85;color:var(--ink-2);margin-bottom:14px}
+.feat ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.feat li{font-size:14px;padding-left:22px;position:relative}
+.feat li::before{
+  content:"";position:absolute;left:0;top:7px;width:10px;height:10px;border-radius:3px;
+  background:var(--rose);border:2px solid var(--line);
+}
+.tag{font-family:'Zen Maru Gothic',sans-serif;font-size:11px;font-weight:800;background:var(--ink);color:var(--cream);padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:10px}
+
+.mock{
+  width:100%;max-width:320px;border:3px solid var(--line);border-radius:14px;background:var(--panel);
+  padding:12px;box-shadow:6px 6px 0 var(--line);
+}
+.mock .bar{height:10px;border-radius:999px;background:#e7e5e4;margin:8px 0}
+.mock .cardline{height:44px;border:2px solid var(--line);border-radius:10px;margin-top:8px;background:#fff7f7}
+
+.final{display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;padding:22px 24px;border-radius:16px}
+.final h3{font-family:'Zen Maru Gothic',sans-serif;font-size:22px;font-weight:900}
+.final p{font-size:13px;color:var(--ink-2)}
+
+footer{background:var(--ink);color:#d6d3d1;padding:48px 0 20px;border-top:4px solid var(--line)}
+footer h4{font-family:'Zen Maru Gothic',sans-serif;font-size:12px;color:var(--cream);margin-bottom:12px;letter-spacing:.06em}
+footer a{color:#a8a29e;text-decoration:none;font-size:13px;display:block;padding:4px 0}
+footer a:hover{color:var(--cream)}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:26px;margin-bottom:26px}
+.foot-bottom{border-top:2px solid #44403c;padding-top:16px;display:flex;justify-content:space-between;font-size:11px;color:#78716c;font-family:'Zen Maru Gothic',sans-serif}
+.foot-static-item{color:#78716c;font-size:13px;display:block;padding:4px 0}
+.foot-brand-icon{width:18px;height:18px;display:block;object-fit:contain}
+
+@media (max-width:900px){
+  .wrap{padding:0 14px}
+  .nav{flex-wrap:wrap;gap:10px}
+  nav ul{display:none}
+  .hero-grid{grid-template-columns:1fr;gap:16px}
+  .h1{font-size:34px;line-height:1.2}
+  .hero{padding:24px 0}
+  .hero-stage-desktop{display:none}
+  .hero-stage-mobile{display:block;margin-top:14px;margin-bottom:14px}
+  .hero-ctas{flex-direction:column;align-items:stretch}
+  .troubles{grid-template-columns:1fr}
+  .feat{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-bottom{flex-direction:column;gap:8px;text-align:center}
+  .final{grid-template-columns:1fr;text-align:center}
+}
+@media (max-width:480px){
+  .h1{font-size:28px}
+  .hero-shot-grid{gap:6px}
+}
+</style>
+</head>
+<body>
+
+<div class="devstrip round">※ 画面は開発中のイメージです / 仕様は変更される場合があります</div>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <span class="brand-logo"><img class="head-brand-icon" src="./favicon.png" alt="Sara アイコン"></span>
+      <span>Sara</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#philosophy">コンセプト</a></li>
+        <li><a href="#features">機能</a></li>
+        <li><a href="#today">今日の3枚</a></li>
+        <li><a href="#" onclick="event.preventDefault();alert('Sara はブラウザからそのまま利用できます。');">はじめ方</a></li>
+      </ul>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn primary round" href="https://sara.comodoidea.com/" target="_blank" rel="noopener">今すぐ試す</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="badge round" style="margin-bottom:14px">✦ 発達障害フレンドリー × 毎日リセット</div>
+      <h1 class="h1 round">
+        <span class="accent">管理しない</span><br>タスク管理、Sara
+      </h1>
+      <div class="hero-stage hero-stage-mobile">
+        <div class="hero-stage-head">📱 アプリ画面（開発中）</div>
+        <div class="hero-shot-grid">
+          <figure class="hero-shot">
+            <img src="./uploads/pasted-1776990288706-0.png" alt="Sara アプリ画面 1">
+          </figure>
+          <figure class="hero-shot">
+            <img src="./uploads/pasted-1776990536293-0.png" alt="Sara アプリ画面 2">
+          </figure>
+        </div>
+      </div>
+      <p class="lead">
+        今日やることは<strong>カード3枚だけ</strong>。溜め込まない、背負わない。<br>
+        夜になったら今日の分はそっと消えて、また明日から始められます。
+      </p>
+      <div class="hero-ctas">
+        <a class="btn primary round" href="https://sara.comodoidea.com/" target="_blank" rel="noopener">ブラウザで開く</a>
+      </div>
+      <p class="mono" style="margin-top:14px;font-size:14px;color:var(--ink-2)">
+        &gt; 公式URL →
+        <a href="https://sara.comodoidea.com/" target="_blank" rel="noopener" style="color:var(--rose-2);text-decoration:underline;font-weight:600">sara.comodoidea.com</a>
+      </p>
+    </div>
+    <div class="hero-stage hero-stage-desktop">
+      <div class="hero-stage-head">📱 アプリ画面（開発中）</div>
+      <div class="hero-shot-grid">
+        <figure class="hero-shot">
+          <img src="./uploads/pasted-1776990288706-0.png" alt="Sara アプリ画面 1">
+        </figure>
+        <figure class="hero-shot">
+          <img src="./uploads/pasted-1776990536293-0.png" alt="Sara アプリ画面 2">
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="philosophy" style="background:var(--cream-2);border-top:3px solid var(--line);border-bottom:3px solid var(--line)">
+  <div class="wrap">
+    <div class="eyebrow round">なぜ「管理しない」のか</div>
+    <h2 class="round">タスク管理のストレスから、そっと距離を置く</h2>
+    <p class="sub">リストが長くなるほど、脳は疲れます。Sara は「今日」を小さく保ちます。</p>
+    <div class="troubles">
+      <div class="card trouble">
+        <div style="font-size:34px">📋</div>
+        <h3 class="round">リストが増え続ける</h3>
+        <p>未完了が積み上がり、見るたびに罪悪感。<br>結局、開かなくなる。</p>
+      </div>
+      <div class="card trouble">
+        <div style="font-size:34px">🌀</div>
+        <h3 class="round">優先順位が決まらない</h3>
+        <p>全部大事に見えて、何から手をつけるか分からない。<br>動けない時間が増える。</p>
+      </div>
+      <div class="card trouble">
+        <div style="font-size:34px">🌙</div>
+        <h3 class="round">昨日の残りが重い</h3>
+        <p>昨日できなかった分が、今日のスタートを重くする。<br>続かない原因になりがち。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="eyebrow round">Sara の使い方</div>
+    <h2 class="round">今日の3枚で、やることを選ぶ</h2>
+    <p class="sub">シンプルな操作で、毎日を軽く始められます。</p>
+
+    <div class="card feat" style="margin-bottom:26px">
+      <div class="feat-visual">
+        <div class="mock">
+          <div class="round" style="font-size:12px;font-weight:800;margin-bottom:6px">TODAY</div>
+          <div class="cardline"></div>
+          <div class="cardline"></div>
+          <div class="cardline"></div>
+          <div class="bar" style="width:55%;margin-top:12px"></div>
+        </div>
+      </div>
+      <div>
+        <span class="tag round">STEP 01</span>
+        <h3 class="round">朝に「今日の3枚」を決める</h3>
+        <p>やりたいこと・やるべきことを、カードにして並べます。<br>枚数は多くても3枚。これ以上は今日やらない、と決められます。</p>
+        <ul>
+          <li>迷う時間を減らす</li>
+          <li>脳の負担を下げる</li>
+          <li>小さな達成感を積み重ねる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card feat" style="margin-bottom:26px">
+      <div>
+        <span class="tag round">STEP 02</span>
+        <h3 class="round">終わったらめくる。溜めない</h3>
+        <p>完了したカードはそっと片付け。<br>「全部終わらせないと気が済まない」を手放すためのUIです。</p>
+        <ul>
+          <li>触覚フィードバックで気持ちよく完了</li>
+          <li>未完了を増やしすぎない設計</li>
+          <li>自己嫌悪のループを断ち切る</li>
+        </ul>
+      </div>
+      <div class="feat-visual">
+        <div class="mock">
+          <div class="round" style="font-size:12px;font-weight:800;margin-bottom:6px">DONE</div>
+          <div style="height:64px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;color:var(--ink-2);font-size:12px">完了したカードはここへ</div>
+          <div class="bar" style="width:40%;margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card feat">
+      <div class="feat-visual">
+        <div class="mock">
+          <div class="round" style="font-size:12px;font-weight:800;margin-bottom:6px">NIGHT</div>
+          <div style="padding:14px;border:2px solid var(--line);border-radius:10px;background:#fffbeb;text-align:center;font-size:13px;color:var(--ink-2)">
+            🌙 今日の分はリセット<br><span style="font-size:11px">（仕様は開発中）</span>
+          </div>
+          <div class="bar" style="width:70%;margin-top:12px"></div>
+        </div>
+      </div>
+      <div id="today">
+        <span class="tag round">STEP 03</span>
+        <h3 class="round">夜に、今日を手放す</h3>
+        <p>一日の終わりに、今日のカードをリセット。<br>「続きは明日の3枚から」——背負い込まないための区切りです。</p>
+        <ul>
+          <li>未完了の重さを日単位で区切る</li>
+          <li>翌朝はまた軽いスタート</li>
+          <li>長期タスクは別の仕組みで検討中</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="mono" style="text-align:center;margin-top:22px;color:var(--ink-2);font-size:14px">※ データの保存方式や同期は開発中のため、表示・文言が変わる場合があります</p>
+  </div>
+</section>
+
+<section class="sec" style="padding:36px 0 72px">
+  <div class="wrap">
+    <div class="card" style="background:linear-gradient(135deg,#fff1f2,#fff7ed);border-color:var(--line)">
+      <div class="final">
+        <div>
+          <h3 class="round">今日の3枚から、はじめてみませんか？</h3>
+          <p>ブラウザですぐ試せます。アカウント不要で始められる想定です（変更の可能性あり）。</p>
+        </div>
+        <div>
+          <a class="btn primary round" href="https://sara.comodoidea.com/" target="_blank" rel="noopener">Sara を開く</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="color:var(--cream);margin-bottom:10px">
+          <span class="brand-logo" style="background:var(--cream)"><img class="foot-brand-icon" src="./favicon.png" alt="Sara"></span>
+          <span>Sara</span>
+        </div>
+        <p style="font-size:13px;line-height:1.85;color:#a8a29e;max-width:380px">
+          管理しないタスク管理。今日の3枚だけ、夜にそっと手放す。<br>
+          発達障害のある方にも寄り添うUIを目指しています。
+        </p>
+      </div>
+      <div>
+        <h4>PRODUCT</h4>
+        <a href="https://sara.comodoidea.com/" target="_blank" rel="noopener">アプリを開く ↗</a>
+        <a href="#features">機能の流れ</a>
+        <span class="foot-static-item">FAQ（準備中）</span>
+      </div>
+      <div>
+        <h4>DEVELOPER</h4>
+        <a href="https://www.comodoidea.com/" target="_blank" rel="noopener">comodoidea ↗</a>
+        <a href="mailto:info@comodoidea.com">お問い合わせ: info@comodoidea.com</a>
+      </div>
+      <div>
+        <h4>LEGAL</h4>
+        <a href="#" onclick="event.preventDefault()">利用規約（準備中）</a>
+        <a href="#" onclick="event.preventDefault()">プライバシーポリシー（準備中）</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Sara × comodoidea</span>
+      <span>LP v0.1 — 開発中</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
