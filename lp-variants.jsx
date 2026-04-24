@@ -79,24 +79,38 @@ const LP_THEMES = {
 // ─────────────────────────────────────────────────────────────
 // Shared atoms
 // ─────────────────────────────────────────────────────────────
-function ThemePicker({ value, onChange, lp }) {
+function useLPViewportWidth() {
+  const [width, setWidth] = React.useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+  React.useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return width;
+}
+
+function ThemePicker({ value, onChange, lp, compact = false }) {
   const themes = ['normal', 'spiritual', 'pop'];
   return (
     <div style={{
-      display: 'inline-flex', gap: 0,
-      padding: 4, borderRadius: 999,
+      display: 'inline-flex', flexWrap: 'wrap', gap: 0,
+      padding: compact ? 3 : 4, borderRadius: 999,
       background: lp.accentSoft,
       border: `1px solid ${lp.accent}33`,
+      maxWidth: '100%',
     }}>
       {themes.map((th) => {
         const active = th === value;
         const label = th[0].toUpperCase() + th.slice(1);
         return (
           <button key={th} onClick={() => onChange(th)} style={{
-            padding: '7px 18px', borderRadius: 999, border: 'none',
+            padding: compact ? '6px 12px' : '7px 18px', borderRadius: 999, border: 'none',
             background: active ? lp.accent : 'transparent',
             color: active ? (th === 'spiritual' ? '#0E1530' : '#fff') : lp.ink,
-            fontFamily: lp.sans, fontSize: 13, fontWeight: 600,
+            fontFamily: lp.sans, fontSize: compact ? 11 : 13, fontWeight: 600,
             cursor: 'pointer', transition: 'all .25s',
             letterSpacing: 0.3,
           }}>{label}</button>
@@ -106,19 +120,20 @@ function ThemePicker({ value, onChange, lp }) {
   );
 }
 
-function AppStoreButton({ lp, hoverable = true }) {
+function AppStoreButton({ lp, hoverable = true, compact = false }) {
   const [hover, setHover] = React.useState(false);
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%' }}>
       <button
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
-          display: 'inline-flex', alignItems: 'center', gap: 12,
-          padding: '16px 30px', borderRadius: 999,
+          display: 'inline-flex', alignItems: 'center', gap: compact ? 8 : 12,
+          padding: compact ? '12px 18px' : '16px 30px', borderRadius: 999,
           background: lp.btnBg, color: lp.btnInk,
           border: 'none', cursor: 'not-allowed',
-          fontFamily: lp.sans, fontSize: 17, fontWeight: 700,
+          fontFamily: lp.sans, fontSize: compact ? 14 : 17, fontWeight: 700,
+          maxWidth: '100%',
           opacity: 0.55, filter: 'saturate(0.85)',
           boxShadow: hover && hoverable
             ? `0 14px 28px ${lp.accent}55, 0 0 0 4px ${lp.accent}22`
@@ -385,67 +400,95 @@ function LPConservative() {
 function LPBalanced() {
   const [theme, setTheme] = React.useState('normal');
   const lp = LP_THEMES[theme];
+  const vw = useLPViewportWidth();
+  const narrow = vw < 600;
+  const tablet = vw < 960;
+  const pad = narrow ? 18 : tablet ? 32 : 56;
+  const padTop = narrow ? 14 : 24;
+  const compact = tablet;
+  const heroCols = narrow ? '1fr' : '1.15fr 1fr';
+  const heroGap = narrow ? 24 : tablet ? 36 : 48;
+  const h1 = narrow ? 32 : tablet ? 48 : 66;
+  const sub = narrow ? 16 : tablet ? 18 : 20;
+  const lead = narrow ? 13.5 : 14;
+  const h2 = narrow ? 26 : tablet ? 34 : 42;
+  const h3 = narrow ? 22 : tablet ? 28 : 34;
+  const featCols = narrow || tablet ? '1fr' : 'repeat(3, 1fr)';
+  const featGap = narrow ? 22 : 36;
+  const heroScale = narrow ? 0.72 : tablet ? 0.9 : 1.05;
+  const sec2Scale = narrow ? 0.78 : 1;
+  const themeBtnPad = narrow ? '10px 14px' : '12px 22px';
+  const themeBtnFont = narrow ? 12 : 14;
+  const footCols = tablet ? '1fr' : 'repeat(3, 1fr)';
 
   return (
     <div style={{
-      width: 1200, background: lp.pageBg, fontFamily: lp.sans, color: lp.ink,
+      width: '100%', maxWidth: 1200, margin: '0 auto', minWidth: 0, boxSizing: 'border-box',
+      background: lp.pageBg, fontFamily: lp.sans, color: lp.ink,
       transition: 'background .45s ease',
     }}>
       {/* Floating theme picker (sticky-feel) */}
       <div style={{
-        padding: '24px 56px 0', display: 'flex', justifyContent: 'space-between',
-        alignItems: 'center',
+        padding: `${padTop}px ${pad}px 0`,
+        display: 'flex', flexDirection: narrow ? 'column' : 'row',
+        justifyContent: 'space-between', alignItems: narrow ? 'stretch' : 'center',
+        gap: narrow ? 12 : 0,
       }}>
         <Logo lp={lp}/>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          justifyContent: narrow ? 'space-between' : 'flex-end',
+        }}>
           <span style={{
-            fontFamily: lp.sans, fontSize: 11, color: lp.inkSoft, letterSpacing: 2,
+            fontFamily: lp.sans, fontSize: narrow ? 10 : 11, color: lp.inkSoft, letterSpacing: 2,
           }}>THEME</span>
-          <ThemePicker value={theme} onChange={setTheme} lp={lp}/>
+          <ThemePicker value={theme} onChange={setTheme} lp={lp} compact={compact}/>
         </div>
       </div>
 
       {/* HERO */}
       <section style={{
-        display: 'grid', gridTemplateColumns: '1.15fr 1fr',
-        padding: '40px 56px 60px', gap: 48, alignItems: 'center',
+        display: 'grid', gridTemplateColumns: heroCols,
+        padding: `${narrow ? 24 : 40}px ${pad}px ${narrow ? 32 : 60}px`,
+        gap: heroGap, alignItems: 'center',
       }}>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div style={{
             display: 'inline-block', padding: '6px 14px',
             border: `1px solid ${lp.accent}66`, borderRadius: 999,
-            fontSize: 11, color: lp.accent, letterSpacing: 2,
-            fontFamily: lp.sans, marginBottom: 28, fontWeight: 600,
+            fontSize: narrow ? 10 : 11, color: lp.accent, letterSpacing: 2,
+            fontFamily: lp.sans, marginBottom: narrow ? 18 : 28, fontWeight: 600,
           }}>{lp.moodLabel}</div>
           <h1 style={{
             fontFamily: lp.serif, fontWeight: lp.headlineWeight,
-            fontSize: 66, lineHeight: 1.18, color: lp.accent,
+            fontSize: h1, lineHeight: 1.18, color: lp.accent,
             margin: '0 0 22px', letterSpacing: theme === 'pop' ? 0 : 1,
             whiteSpace: 'pre-line',
             transition: 'color .4s, font-family .3s',
+            wordBreak: 'break-word',
           }}>{lp.headlineKey}</h1>
           <p style={{
-            fontFamily: lp.serif, fontSize: 20, color: lp.ink,
+            fontFamily: lp.serif, fontSize: sub, color: lp.ink,
             margin: '0 0 32px', lineHeight: 1.55,
           }}>{lp.subKey}</p>
           <p style={{
-            fontFamily: lp.sans, fontSize: 14, lineHeight: 1.95, color: lp.inkSoft,
+            fontFamily: lp.sans, fontSize: lead, lineHeight: 1.95, color: lp.inkSoft,
             margin: '0 0 40px', maxWidth: 460,
           }}>
             Sara（さら）は、ADHDや発達特性のある方のための<br/>
             シンプルなタスクアプリです。タスクは3つまで。<br/>
             夜になるとすべてリセットされます。
           </p>
-          <AppStoreButton lp={lp}/>
+          <AppStoreButton lp={lp} compact={narrow}/>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            marginTop: 16, fontSize: 13, color: lp.inkSoft,
+            marginTop: 16, fontSize: narrow ? 12 : 13, color: lp.inkSoft,
           }}>
             <span style={{ color: lp.accent }}>◆</span> 個人情報の登録は不要です
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <PhoneFrame scale={1.05}>
+        <div style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}>
+          <PhoneFrame scale={heroScale}>
             <SaraScreen theme={theme}/>
           </PhoneFrame>
         </div>
@@ -453,12 +496,12 @@ function LPBalanced() {
 
       {/* FEATURES band */}
       <section style={{
-        background: lp.bandBg, padding: '46px 56px',
+        background: lp.bandBg, padding: `${narrow ? 32 : 46}px ${pad}px`,
         borderTop: `1px solid ${lp.accent}22`,
         borderBottom: `1px solid ${lp.accent}22`,
       }}>
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 36,
+          display: 'grid', gridTemplateColumns: featCols, gap: featGap,
         }}>
           {[
             { icon: 'cal', title: '今日の3枚だけ', body: 'タスクは1日3つまで。シンプルだから続けられる。' },
@@ -467,17 +510,17 @@ function LPBalanced() {
           ].map((f, i) => (
             <div key={i} style={{ display: 'flex', gap: 18, alignItems: 'flex-start' }}>
               <div style={{
-                width: 60, height: 60, borderRadius: '50%',
+                width: narrow ? 52 : 60, height: narrow ? 52 : 60, borderRadius: '50%',
                 background: lp.accentSoft, display: 'flex',
                 alignItems: 'center', justifyContent: 'center', flexShrink: 0,
               }}>
                 <FeatureIcon kind={f.icon} lp={lp}/>
               </div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={{
-                  fontFamily: lp.serif, fontWeight: 700, fontSize: 17, marginBottom: 6,
+                  fontFamily: lp.serif, fontWeight: 700, fontSize: narrow ? 16 : 17, marginBottom: 6,
                 }}>{f.title}</div>
-                <div style={{ fontSize: 13.5, lineHeight: 1.75, color: lp.inkSoft }}>{f.body}</div>
+                <div style={{ fontSize: narrow ? 13 : 13.5, lineHeight: 1.75, color: lp.inkSoft }}>{f.body}</div>
               </div>
             </div>
           ))}
@@ -486,23 +529,26 @@ function LPBalanced() {
 
       {/* SECTION 2 */}
       <section style={{
-        padding: '60px 56px',
-        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center',
+        padding: `${narrow ? 36 : 60}px ${pad}px`,
+        display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr',
+        gap: narrow ? 28 : tablet ? 40 : 56, alignItems: 'center',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          {/* contrasting theme phone */}
-          <PhoneFrame>
+        <div style={{
+          display: 'flex', justifyContent: 'center', order: narrow ? 2 : 0,
+        }}>
+          <PhoneFrame scale={sec2Scale}>
             <SaraScreen theme={theme === 'normal' ? 'spiritual' : (theme === 'spiritual' ? 'pop' : 'normal')}/>
           </PhoneFrame>
         </div>
-        <div>
+        <div style={{ order: narrow ? 1 : 0, minWidth: 0 }}>
           <h2 style={{
-            fontFamily: lp.serif, fontSize: 42, color: lp.accent,
+            fontFamily: lp.serif, fontSize: h2, color: lp.accent,
             fontWeight: 700, lineHeight: 1.3, margin: '0 0 22px',
             whiteSpace: 'pre-line',
+            wordBreak: 'break-word',
           }}>{lp.section2Title}</h2>
           <p style={{
-            fontFamily: lp.sans, fontSize: 14.5, lineHeight: 1.95, color: lp.inkSoft,
+            fontFamily: lp.sans, fontSize: narrow ? 14 : 14.5, lineHeight: 1.95, color: lp.inkSoft,
             margin: '0 0 26px',
           }}>
             やることが多すぎると、動けなくなることがあります。<br/>
@@ -519,38 +565,39 @@ function LPBalanced() {
 
       {/* THEME CALLOUT */}
       <section style={{
-        background: lp.bandBg, padding: '54px 56px',
+        background: lp.bandBg, padding: `${narrow ? 36 : 54}px ${pad}px`,
         textAlign: 'center', borderTop: `1px solid ${lp.accent}22`,
       }}>
         <div style={{
-          fontFamily: lp.sans, fontSize: 12, color: lp.accent,
-          letterSpacing: 4, marginBottom: 10, fontWeight: 600,
+          fontFamily: lp.sans, fontSize: narrow ? 11 : 12, color: lp.accent,
+          letterSpacing: narrow ? 2 : 4, marginBottom: 10, fontWeight: 600,
         }}>— 3 THEMES —</div>
         <h3 style={{
-          fontFamily: lp.serif, fontSize: 34, color: lp.ink,
-          margin: '0 0 14px', fontWeight: 700,
+          fontFamily: lp.serif, fontSize: h3, color: lp.ink,
+          margin: '0 0 14px', fontWeight: 700, lineHeight: 1.35,
         }}>気分にあわせて、アプリの世界が変わる。</h3>
         <p style={{
-          fontFamily: lp.sans, fontSize: 14, color: lp.inkSoft,
-          margin: '0 auto 36px', maxWidth: 540, lineHeight: 1.85,
+          fontFamily: lp.sans, fontSize: narrow ? 13 : 14, color: lp.inkSoft,
+          margin: '0 auto 36px', maxWidth: 540, lineHeight: 1.85, padding: narrow ? '0 4px' : 0,
         }}>
           上の「Theme」スイッチで、ページ全体の雰囲気が切り替わります。<br/>
           自分の今日の気分に、いちばん合う1つを選んでください。
         </p>
         <div style={{
-          display: 'inline-flex', gap: 10, padding: 6,
-          background: lp.pageBg, borderRadius: 999,
+          display: 'inline-flex', flexWrap: 'wrap', gap: narrow ? 8 : 10,
+          padding: 6, justifyContent: 'center',
+          background: lp.pageBg, borderRadius: 999, maxWidth: '100%',
         }}>
           {['normal', 'spiritual', 'pop'].map((th) => {
             const active = th === theme;
             const dot = { normal: '#7A1F2B', spiritual: '#C9A76A', pop: '#FF5C8A' }[th];
             return (
               <button key={th} onClick={() => setTheme(th)} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '12px 22px', borderRadius: 999, border: 'none',
+                display: 'flex', alignItems: 'center', gap: narrow ? 6 : 8,
+                padding: themeBtnPad, borderRadius: 999, border: 'none',
                 background: active ? lp.accent : 'transparent',
                 color: active ? (th === 'spiritual' ? '#0E1530' : '#fff') : lp.ink,
-                cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', fontSize: themeBtnFont, fontWeight: 600,
                 fontFamily: lp.sans,
               }}>
                 <span style={{
@@ -566,14 +613,14 @@ function LPBalanced() {
 
       {/* FOOTER */}
       <footer style={{
-        padding: '60px 56px 36px',
+        padding: `${narrow ? 40 : 60}px ${pad}px 36px`,
         background: lp.footerBg,
         color: lp.footerInk,
         borderTop: `1px solid ${lp.accent}22`,
       }}>
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 48, paddingBottom: 48,
+          display: 'grid', gridTemplateColumns: footCols,
+          gap: narrow ? 28 : 48, paddingBottom: 48,
           borderBottom: `1px solid ${lp.footerDivider}`,
         }}>
           {[
@@ -634,7 +681,9 @@ function LPBalanced() {
           ))}
         </div>
         <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          display: 'flex', flexDirection: narrow ? 'column' : 'row',
+          justifyContent: 'space-between', alignItems: narrow ? 'flex-start' : 'center',
+          gap: narrow ? 12 : 0,
           paddingTop: 24,
         }}>
           <Logo lp={lp} size={0.7}/>
